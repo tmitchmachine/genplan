@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:genplan/login_page.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'screens/login_page.dart'; // Make sure this path matches your file structure
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+void main() {
   runApp(const MyApp());
 }
 

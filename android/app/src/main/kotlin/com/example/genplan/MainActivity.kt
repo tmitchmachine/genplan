@@ -1,4 +1,4 @@
-package com.example.genplan
+package org.heavenya.genplan
 
 import io.flutter.embedding.android.FlutterActivity
 

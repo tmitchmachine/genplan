@@ -1,32 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:genplan/screens/sign_up_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'home_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // For storing additional user data
 
-class LoginPage extends StatefulWidget {
+import 'home_screen.dart';
+import 'login_page.dart';
+
+class SignupPage extends StatefulWidget {
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  _SignupPageState createState() => _SignupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<void> signInWithEmail() async {
+  Future<void> signUpWithEmail() async {
     try {
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // Navigate to Home Screen if sign-in is successful
+
+      // Store additional user info like username
       if (userCredential.user != null) {
+        await firestore.collection('users').doc(userCredential.user!.uid).set({
+          'username': usernameController.text.trim(),
+          'email': emailController.text.trim(),
+        });
+
+        // Navigate to Home Screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => HomeScreen(),
@@ -34,9 +39,9 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
-      // Handle errors like wrong password or user not found
+      print("Error $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sign in: $e')),
+        SnackBar(content: Text('Failed to sign up: $e')),
       );
     }
   }
@@ -56,36 +61,40 @@ class _LoginPageState extends State<LoginPage> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          leading: Container(),
           backgroundColor: Colors.transparent,
-          title: const Text('Login', style: TextStyle(color: Colors.white)),
+          title: const Text('Sign Up', style: TextStyle(color: Colors.white)),
           centerTitle: true,
         ),
         backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(child: buildLoginPageUI(buttonWidth)),
+        body: buildSignupPageUI(buttonWidth),
       ),
     );
   }
 
-  Widget buildLoginPageUI(double buttonWidth) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _icon(),
-            const SizedBox(height: 50.0),
-            _inputField("Enter Email", emailController, buttonWidth,
-                isEmail: true),
-            const SizedBox(height: 30.0),
-            _inputField("Enter Password", passwordController, buttonWidth,
-                isPassword: true),
-            const SizedBox(height: 30.0),
-            _loginBtn(buttonWidth),
-            const SizedBox(height: 30.0),
-            _signupLink(),
-          ],
+  Widget buildSignupPageUI(double buttonWidth) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _icon(),
+              const SizedBox(height: 50.0),
+              _inputField("Enter Username", usernameController, buttonWidth),
+              const SizedBox(height: 30.0),
+              _inputField("Enter Email", emailController, buttonWidth,
+                  isEmail: true),
+              const SizedBox(height: 30.0),
+              _inputField("Enter Password", passwordController, buttonWidth,
+                  isPassword: true),
+              const SizedBox(height: 30.0),
+              _signupBtn(buttonWidth),
+              const SizedBox(height: 30.0),
+              _signupLink(),
+            ],
+          ),
         ),
       ),
     );
@@ -97,7 +106,8 @@ class _LoginPageState extends State<LoginPage> {
         border: Border.all(color: Colors.white, width: 2),
         shape: BoxShape.circle,
       ),
-      child: const Icon(Icons.person, color: Colors.white, size: 120),
+      child: const Icon(Icons.app_registration_rounded,
+          color: Colors.white, size: 120),
     );
   }
 
@@ -129,12 +139,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _loginBtn(double width) {
+  Widget _signupBtn(double width) {
     return Container(
       width: width,
       child: ElevatedButton(
         onPressed: () {
-          signInWithEmail();
+          signUpWithEmail();
         },
         style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
@@ -143,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.symmetric(vertical: 16.0),
         ),
         child: const Text(
-          "Continue",
+          "Sign Up",
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 15),
         ),
@@ -156,12 +166,12 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => SignupPage(), // Navigate to the signup page
+            builder: (context) => LoginPage(), // Navigate to the signup page
           ),
         );
       },
       child: const Text(
-        "Don't have an account? Sign up",
+        "Already have an account? Login",
         style: TextStyle(color: Colors.white),
       ),
     );

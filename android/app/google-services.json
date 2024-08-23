@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "206069651748",
+    "project_id": "genplan-007",
+    "storage_bucket": "genplan-007.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206069651748:android:4adc88d606a51d0f5a3bb1",
+        "android_client_info": {
+          "package_name": "org.heavenya.genplan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_eR7cZZeMWzZc6uzeB7gD_4jPfte92DE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

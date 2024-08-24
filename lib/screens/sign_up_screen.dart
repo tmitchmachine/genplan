@@ -61,6 +61,7 @@ class _SignupPageState extends State<SignupPage> {
       ),
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false, // Removes the back arrow
           backgroundColor: Colors.transparent,
           title: const Text('Sign Up', style: TextStyle(color: Colors.white)),
           centerTitle: true,
@@ -89,7 +90,8 @@ class _SignupPageState extends State<SignupPage> {
               const SizedBox(height: 30.0),
               _inputField("Enter Password", passwordController, buttonWidth,
                   isPassword: true),
-              const SizedBox(height: 30.0),
+              const SizedBox(
+                  height: 40.0), // Increased spacing for better visual appeal
               _signupBtn(buttonWidth),
               const SizedBox(height: 30.0),
               _signupLink(),
@@ -120,7 +122,6 @@ class _SignupPageState extends State<SignupPage> {
         style: const TextStyle(color: Colors.white),
         controller: controller,
         textAlign: TextAlign.center,
-        // Center the hint text
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.white),
@@ -155,7 +156,7 @@ class _SignupPageState extends State<SignupPage> {
         child: const Text(
           "Sign Up",
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 15),
+          style: TextStyle(fontSize: 15),
         ),
       ),
     );
@@ -166,7 +167,7 @@ class _SignupPageState extends State<SignupPage> {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => LoginPage(), // Navigate to the signup page
+            builder: (context) => LoginPage(), // Navigate to the login page
           ),
         );
       },

@@ -41,6 +41,26 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<void> resetPassword() async {
+    if (emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter your email address.')),
+      );
+      return;
+    }
+
+    try {
+      await auth.sendPasswordResetEmail(email: emailController.text.trim());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password reset email sent!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send password reset email: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double buttonWidth =
@@ -81,6 +101,8 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 30.0),
             _inputField("Enter Password", passwordController, buttonWidth,
                 isPassword: true),
+            const SizedBox(height: 10.0),
+            _forgotPasswordLink(),
             const SizedBox(height: 30.0),
             _loginBtn(buttonWidth),
             const SizedBox(height: 30.0),
@@ -110,7 +132,6 @@ class _LoginPageState extends State<LoginPage> {
         style: const TextStyle(color: Colors.white),
         controller: controller,
         textAlign: TextAlign.center,
-        // Center the hint text
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.white),
@@ -125,6 +146,21 @@ class _LoginPageState extends State<LoginPage> {
         ),
         obscureText: isPassword,
         keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
+      ),
+    );
+  }
+
+  Widget _forgotPasswordLink() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {
+          resetPassword();
+        },
+        child: const Text(
+          "Forgot Password?",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -145,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
         child: const Text(
           "Continue",
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 15),
+          style: TextStyle(fontSize: 15),
         ),
       ),
     );
@@ -156,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => SignupPage(), // Navigate to the signup page
+            builder: (context) => SignupPage(),
           ),
         );
       },

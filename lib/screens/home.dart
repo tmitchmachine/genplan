@@ -1,12 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'login.dart';
 
-import 'login_page.dart';
-
-class HomeScreen extends StatelessWidget {
-
+class HomePage extends StatelessWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
-
 
   @override
   Widget build(BuildContext context) {

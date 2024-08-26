@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:genplan/firebase_options.dart';
-import 'screens/login_page.dart'; // Ensure this path matches your file structure
+import 'package:genplan/screens/sign_in_options.dart'; // Ensure this path matches your file structure
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home:
-          LoginPage(), // Ensure LoginPage is correctly defined in 'screens/login_page.dart'
+          SignInOptionsPage(), // Ensure LoginPage is correctly defined in 'screens/login_page.dart'
     );
   }
 }

@@ -1,47 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // For storing additional user data
+import 'package:genplan/screens/sign_up.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:genplan/screens/home.dart';
 
-import 'home_screen.dart';
-import 'login_page.dart';
-
-class SignupPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _SignupPageState createState() => _SignupPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
-  final TextEditingController usernameController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Future<void> signUpWithEmail() async {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> signInWithEmail() async {
     try {
-      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-
-      // Store additional user info like username
+      // Navigate to Home Screen if sign-in is successful
       if (userCredential.user != null) {
-        await firestore.collection('users').doc(userCredential.user!.uid).set({
-          'username': usernameController.text.trim(),
-          'email': emailController.text.trim(),
-        });
-
-        // Navigate to Home Screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => HomeScreen(),
+            builder: (context) => HomePage(),
           ),
         );
       }
     } catch (e) {
-      print("Error $e");
+      // Handle errors like wrong password or user not found
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sign up: $e')),
+        SnackBar(content: Text('Failed to sign in: $e')),
+      );
+    }
+  }
+
+  Future<void> resetPassword() async {
+    if (emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter your email address.')),
+      );
+      return;
+    }
+
+    try {
+      await auth.sendPasswordResetEmail(email: emailController.text.trim());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password reset email sent!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send password reset email: $e')),
       );
     }
   }
@@ -61,42 +76,38 @@ class _SignupPageState extends State<SignupPage> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: false, // Removes the back arrow
+          leading: Container(),
           backgroundColor: Colors.transparent,
-          title: const Text('Sign Up', style: TextStyle(color: Colors.white)),
+          title: const Text('Login', style: TextStyle(color: Colors.white)),
           centerTitle: true,
         ),
         backgroundColor: Colors.transparent,
-        body: buildSignupPageUI(buttonWidth),
+        body: SingleChildScrollView(child: buildLoginPageUI(buttonWidth)),
       ),
     );
   }
 
-  Widget buildSignupPageUI(double buttonWidth) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _icon(),
-              const SizedBox(height: 50.0),
-              _inputField("Enter Username", usernameController, buttonWidth),
-              const SizedBox(height: 30.0),
-              _inputField("Enter Email", emailController, buttonWidth,
-                  isEmail: true),
-              const SizedBox(height: 30.0),
-              _inputField("Enter Password", passwordController, buttonWidth,
-                  isPassword: true),
-              const SizedBox(
-                  height: 40.0), // Increased spacing for better visual appeal
-              _signupBtn(buttonWidth),
-              const SizedBox(height: 30.0),
-              _signupLink(),
-            ],
-          ),
+  Widget buildLoginPageUI(double buttonWidth) {
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _icon(),
+            const SizedBox(height: 50.0),
+            _inputField("Enter Email", emailController, buttonWidth,
+                isEmail: true),
+            const SizedBox(height: 30.0),
+            _inputField("Enter Password", passwordController, buttonWidth,
+                isPassword: true),
+            const SizedBox(height: 10.0),
+            _forgotPasswordLink(),
+            const SizedBox(height: 30.0),
+            _loginBtn(buttonWidth),
+            const SizedBox(height: 30.0),
+            _signupLink(),
+          ],
         ),
       ),
     );
@@ -108,8 +119,7 @@ class _SignupPageState extends State<SignupPage> {
         border: Border.all(color: Colors.white, width: 2),
         shape: BoxShape.circle,
       ),
-      child: const Icon(Icons.app_registration_rounded,
-          color: Colors.white, size: 120),
+      child: const Icon(Icons.person, color: Colors.white, size: 120),
     );
   }
 
@@ -140,12 +150,27 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  Widget _signupBtn(double width) {
+  Widget _forgotPasswordLink() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {
+          resetPassword();
+        },
+        child: const Text(
+          "Forgot Password?",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _loginBtn(double width) {
     return Container(
       width: width,
       child: ElevatedButton(
         onPressed: () {
-          signUpWithEmail();
+          signInWithEmail();
         },
         style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
@@ -154,7 +179,7 @@ class _SignupPageState extends State<SignupPage> {
           padding: const EdgeInsets.symmetric(vertical: 16.0),
         ),
         child: const Text(
-          "Sign Up",
+          "Continue",
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 15),
         ),
@@ -167,12 +192,12 @@ class _SignupPageState extends State<SignupPage> {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => LoginPage(), // Navigate to the login page
+            builder: (context) => SignupPage(),
           ),
         );
       },
       child: const Text(
-        "Already have an account? Login",
+        "Don't have an account? Sign up",
         style: TextStyle(color: Colors.white),
       ),
     );

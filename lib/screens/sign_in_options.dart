@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:genplan/screens/login.dart'; // Import the LoginPage
+import 'package:genplan/screens/sign_up.dart'; // Import the SignupPage
 
 class SignInOptionsPage extends StatelessWidget {
   const SignInOptionsPage({Key? key}) : super(key: key);
@@ -8,14 +10,19 @@ class SignInOptionsPage extends StatelessWidget {
       width: width,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/login'); // Navigate to LoginPage
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoginPage(), // Navigate to LoginPage
+            ),
+          );
         },
         style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
-          backgroundColor: Colors.white, // Set background to solid white
-          foregroundColor: Colors.blue,
-          side: const BorderSide(
-              color: Colors.blue, width: 2.0), // Add blue border
+          backgroundColor: Colors.transparent, // Set background to transparent
+          foregroundColor: Colors.white, // Text color to white
+          side:
+              const BorderSide(color: Colors.white, width: 2.0), // White border
           padding: const EdgeInsets.symmetric(vertical: 16.0),
         ),
         child: const Text(
@@ -32,12 +39,17 @@ class SignInOptionsPage extends StatelessWidget {
       width: width,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/signup'); // Navigate to SignupPage
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SignupPage(), // Navigate to SignupPage
+            ),
+          );
         },
         style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
           backgroundColor: Colors.white, // Set background to solid white
-          foregroundColor: Colors.blue,
+          foregroundColor: Colors.blue, // Text color to blue
           padding: const EdgeInsets.symmetric(vertical: 16.0),
         ),
         child: const Text(
@@ -69,7 +81,7 @@ class SignInOptionsPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                '/Users/heavenya/Github/genplan/assets/icon/icon.png',
+                'Github/genplan/assets/icon/icon.png', // Correct path for the asset
                 width: 100, // Set the desired width of the image
                 height: 100, // Set the desired height of the image
               ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:genplan/screens/sign_up.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:genplan/screens/sign_up.dart'; // Ensure this path is correct
 import 'package:genplan/screens/home.dart';
+import 'package:genplan/screens/forgot_password.dart'; // Add this import statement
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,7 +12,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -155,7 +155,11 @@ class _LoginPageState extends State<LoginPage> {
       alignment: Alignment.centerRight,
       child: TextButton(
         onPressed: () {
-          resetPassword();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ForgotPasswordPage(), // Updated navigation
+            ),
+          );
         },
         child: const Text(
           "Forgot Password?",
@@ -174,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
         },
         style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
-          backgroundColor: Color.fromARGB(225, 228, 226, 226),
+          backgroundColor: const Color.fromARGB(225, 228, 226, 226),
           foregroundColor: Colors.blue,
           padding: const EdgeInsets.symmetric(vertical: 16.0),
         ),
@@ -192,7 +196,8 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => SignupPage(),
+            builder: (context) =>
+                SignupPage(), // Correct navigation to SignupPage
           ),
         );
       },

@@ -80,8 +80,8 @@ class SignInOptionsPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'Github/genplan/assets/icon/icon.png', // Correct path for the asset
+              Image.network(
+                'https://firebasestorage.googleapis.com/v0/b/genplan-007.appspot.com/o/icon.png?alt=media&token=f787a6c6-ced8-4599-b573-dc9d2926598e', // URL for the image
                 width: 100, // Set the desired width of the image
                 height: 100, // Set the desired height of the image
               ),

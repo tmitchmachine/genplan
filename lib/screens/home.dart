@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:genplan/screens/sign_in_options.dart';
+import 'package:genplan/screens/menu.dart'; // Ensure this is correct
 
 class HomePage extends StatelessWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -16,7 +17,13 @@ class HomePage extends StatelessWidget {
             height: 24,
           ),
           onPressed: () {
-            // Menu button action here
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    MenuPage(auth: auth), // Pass the auth instance here
+              ),
+            );
           },
         ),
         title: const Text(
@@ -71,7 +78,6 @@ class HomePage extends StatelessWidget {
                   ),
                   child: ElevatedButton(
                     onPressed: () async {
-                      // Button press logic here
                       await auth.signOut();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
@@ -86,7 +92,9 @@ class HomePage extends StatelessWidget {
                       elevation: 0, // Remove shadow
                       minimumSize: Size(200, 50), // Button size
                       padding: EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 32), // Button padding
+                        vertical: 16,
+                        horizontal: 32,
+                      ), // Button padding
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                             8.0), // Match the container's border radius

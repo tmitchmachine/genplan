@@ -1,86 +1,100 @@
 import 'package:flutter/material.dart';
-import 'package:genplan/screens/sign_in_options.dart';
-import 'package:genplan/screens/onboarding_one.dart'; // Use OnboardingOne if Interests doesn't exist
-import 'package:genplan/screens/location.dart';
 
-class MenuPage extends StatelessWidget {
-  final dynamic auth; // Replace 'dynamic' with the actual type of 'auth'
+class Interests extends StatefulWidget {
+  @override
+  _InterestsState createState() => _InterestsState();
+}
 
-  MenuPage({required this.auth});
+class _InterestsState extends State<Interests> {
+  final TextEditingController _interestController = TextEditingController();
+  final List<String> _interests = [];
+
+  void _addInterest() {
+    final interest = _interestController.text.trim();
+    if (interest.isNotEmpty && !_interests.contains(interest)) {
+      setState(() {
+        _interests.add(interest);
+      });
+      _interestController.clear();
+    }
+  }
+
+  void _removeInterest(String interest) {
+    setState(() {
+      _interests.remove(interest);
+    });
+  }
+
+  @override
+  void dispose() {
+    _interestController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Menu'),
+        title: Text('Add Your Interests'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        OnboardingOne(), // Corrected to OnboardingOne
-                  ),
-                );
-              },
-              child: Text(
-                'Update Interests',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Divider(color: Colors.grey),
-            SizedBox(height: 16), // Space between items
-
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        Location(), // Correct screen for Location
-                  ),
-                );
-              },
-              child: Text(
-                'Update Location',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Divider(color: Colors.grey),
-            SizedBox(height: 16),
-
             Text(
-              'Update Notification',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Enter your interests:',
+              style: TextStyle(fontSize: 18),
             ),
-            Divider(color: Colors.grey),
-            SizedBox(height: 16),
-
-            Text(
-              'Personalize Experience',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _interestController,
+                    decoration: InputDecoration(
+                      hintText: 'Type an interest...',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _addInterest,
+                  child: Text('Add'),
+                ),
+              ],
             ),
-            Divider(color: Colors.grey),
-            SizedBox(height: 32),
-
-            Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  await auth.signOut();
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => SignInOptionsPage(),
+            SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _interests.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_interests[index]),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () => _removeInterest(_interests[index]),
                     ),
                   );
                 },
-                child: const Text('Log Out'),
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: () {
+            // Navigate to the next screen or process the selected interests
+            // For example:
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => NextScreen()));
+          },
+          child: Text('Continue'),
+          style: ElevatedButton.styleFrom(
+            minimumSize: Size(double.infinity, 50),
+          ),
         ),
       ),
     );

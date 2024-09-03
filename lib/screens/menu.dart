@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:genplan/screens/sign_in_options.dart';
+import 'package:genplan/screens/interests.dart'; // Use OnboardingOne if Interests doesn't exist
+import 'package:genplan/screens/location.dart';
 
 class MenuPage extends StatelessWidget {
   final dynamic auth; // Replace 'dynamic' with the actual type of 'auth'
 
-  // Constructor to accept auth instance
   MenuPage({required this.auth});
 
   @override
@@ -18,12 +19,39 @@ class MenuPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Update Interests',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        Interests(), // Corrected to OnboardingOne
+                  ),
+                );
+              },
+              child: Text(
+                'Update Interests',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
             Divider(color: Colors.grey),
             SizedBox(height: 16), // Space between items
+
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        Location(), // Correct screen for Location
+                  ),
+                );
+              },
+              child: Text(
+                'Update Location',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Divider(color: Colors.grey),
+            SizedBox(height: 16),
 
             Text(
               'Update Notification',

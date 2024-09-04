@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Location extends StatefulWidget {
   @override
@@ -10,6 +11,8 @@ class _LocationState extends State<Location> {
   bool _locationSharingEnabled = false;
   bool _usePreciseLocation = true;
   String _selectedLocation = 'No location selected';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -18,24 +21,35 @@ class _LocationState extends State<Location> {
   }
 
   Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _locationSharingEnabled =
-          prefs.getBool('locationSharingEnabled') ?? false;
-      _usePreciseLocation = prefs.getBool('usePreciseLocation') ?? true;
-      _selectedLocation =
-          prefs.getString('selectedLocation') ?? 'No location selected';
-    });
+    final user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user.uid).get();
+
+      if (userDoc.exists) {
+        setState(() {
+          var data = userDoc.data() as Map<String, dynamic>;
+          _locationSharingEnabled = data['locationSharingEnabled'] ?? false;
+          _usePreciseLocation = data['usePreciseLocation'] ?? true;
+          _selectedLocation =
+              data['selectedLocation'] ?? 'No location selected';
+        });
+      }
+    }
   }
 
   Future<void> _savePreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('locationSharingEnabled', _locationSharingEnabled);
-    await prefs.setBool('usePreciseLocation', _usePreciseLocation);
-    await prefs.setString('selectedLocation', _selectedLocation);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Preferences saved successfully')),
-    );
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _firestore.collection('users').doc(user.uid).set({
+        'locationSharingEnabled': _locationSharingEnabled,
+        'usePreciseLocation': _usePreciseLocation,
+        'selectedLocation': _selectedLocation,
+      }, SetOptions(merge: true));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Preferences saved successfully')),
+      );
+    }
   }
 
   @override
@@ -60,7 +74,6 @@ class _LocationState extends State<Location> {
                 setState(() {
                   _locationSharingEnabled = value;
                   if (!value) {
-                    // Reset location preference when location sharing is disabled
                     _usePreciseLocation = true;
                     _selectedLocation = 'No location selected';
                   }

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:genplan/screens/sign_in_options.dart';
 import 'package:genplan/screens/interests.dart'; // Use OnboardingOne if Interests doesn't exist
 import 'package:genplan/screens/location.dart';
+import 'package:genplan/screens/notification.dart'
+    as custom_notification; // Aliased import
+import 'package:genplan/screens/personalize_experience.dart'; // Import PersonalizeExperience screen
+import 'package:genplan/screens/home.dart'; // Import HomePage screen
 
 class MenuPage extends StatelessWidget {
   final dynamic auth; // Replace 'dynamic' with the actual type of 'auth'
@@ -12,6 +16,16 @@ class MenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => HomePage(), // Navigate to HomePage
+              ),
+            );
+          },
+        ),
         title: Text('Menu'),
       ),
       body: Padding(
@@ -24,7 +38,7 @@ class MenuPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) =>
-                        Interests(), // Corrected to OnboardingOne
+                        Interests(), // Corrected to OnboardingOne if needed
                   ),
                 );
               },
@@ -53,16 +67,36 @@ class MenuPage extends StatelessWidget {
             Divider(color: Colors.grey),
             SizedBox(height: 16),
 
-            Text(
-              'Update Notification',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => custom_notification
+                        .Notification(), // Use aliased import
+                  ),
+                );
+              },
+              child: Text(
+                'Update Notification',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
             Divider(color: Colors.grey),
             SizedBox(height: 16),
 
-            Text(
-              'Personalize Experience',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PersonalizeExperience(), // Navigate to PersonalizeExperience screen
+                  ),
+                );
+              },
+              child: Text(
+                'Personalize Experience',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
             Divider(color: Colors.grey),
             SizedBox(height: 32),

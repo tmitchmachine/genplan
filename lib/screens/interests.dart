@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Interests extends StatefulWidget {
   @override
@@ -8,12 +10,44 @@ class Interests extends StatefulWidget {
 class _InterestsState extends State<Interests> {
   final TextEditingController _interestController = TextEditingController();
   final List<String> _interests = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInterests();
+  }
+
+  void _loadInterests() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user.uid).get();
+
+      if (userDoc.exists) {
+        setState(() {
+          _interests.addAll(List<String>.from(userDoc['interests'] ?? []));
+        });
+      }
+    }
+  }
+
+  void _saveInterests() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _firestore.collection('users').doc(user.uid).set({
+        'interests': _interests,
+      }, SetOptions(merge: true));
+    }
+  }
 
   void _addInterest() {
     final interest = _interestController.text.trim();
     if (interest.isNotEmpty && !_interests.contains(interest)) {
       setState(() {
         _interests.add(interest);
+        _saveInterests(); // Save the updated interests list to Firestore
       });
       _interestController.clear();
     }
@@ -22,6 +56,7 @@ class _InterestsState extends State<Interests> {
   void _removeInterest(String interest) {
     setState(() {
       _interests.remove(interest);
+      _saveInterests(); // Save the updated interests list to Firestore
     });
   }
 
@@ -87,11 +122,10 @@ class _InterestsState extends State<Interests> {
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () {
-            // Navigate to the next screen or process the selected interests
-            // For example:
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => NextScreen()));
+            _saveInterests(); // Save the interests to Firestore
+            Navigator.pop(context); // Return to the previous screen (Menu)
           },
-          child: Text('Continue'),
+          child: Text('Save'),
           style: ElevatedButton.styleFrom(
             minimumSize: Size(double.infinity, 50),
           ),

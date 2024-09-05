@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:genplan/screens/plan.dart'; // Ensure this is correct
 import 'package:genplan/screens/sign_in_options.dart';
-import 'package:genplan/screens/menu.dart'; // Ensure this is correct
+import 'package:genplan/screens/menu.dart';
 
 class HomePage extends StatelessWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -77,11 +78,12 @@ class HomePage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: ElevatedButton(
-                    onPressed: () async {
-                      await auth.signOut();
-                      Navigator.of(context).pushReplacement(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
                         MaterialPageRoute(
-                          builder: (context) => SignInOptionsPage(),
+                          builder: (context) =>
+                              PlanPage(), // Navigate to PlanPage
                         ),
                       );
                     },

@@ -48,11 +48,7 @@ class PlanPage extends StatelessWidget {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Action for Share button
-                      Share.share(
-                        'Check out this plan!',
-                        subject: 'Plan Details',
-                      );
+                      // Action for button (currently nothing here)
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:

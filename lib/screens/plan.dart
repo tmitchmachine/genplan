@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PlanPage extends StatelessWidget {
   // Method to share content
   Future<void> _shareContent() async {
     try {
-      await FlutterShareMe().shareToSystem(
-        msg: 'Check out this awesome content!',
+      await Share.share(
+        'Check out this awesome content!',
       );
     } catch (e) {
       // Handle the exception if sharing fails

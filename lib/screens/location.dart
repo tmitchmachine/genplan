@@ -106,7 +106,7 @@ class _LocationState extends State<Location> {
                 onChanged: (bool? value) {
                   setState(() {
                     _usePreciseLocation = value!;
-                    if (!value!) {
+                    if (!value) {
                       _selectedLocation =
                           'Nearby Location: San Francisco Area'; // Automatically set nearby location
                     }

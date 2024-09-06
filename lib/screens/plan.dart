@@ -1,6 +1,19 @@
-import 'package:flutter/material.dart'; // Import the share_plus package
+import 'package:flutter/material.dart';
+import 'package:flutter_share_me/flutter_share_me.dart';
 
 class PlanPage extends StatelessWidget {
+  // Method to share content
+  Future<void> _shareContent() async {
+    try {
+      await FlutterShareMe().shareToSystem(
+        msg: 'Check out this awesome content!',
+      );
+    } catch (e) {
+      // Handle the exception if sharing fails
+      print('Error sharing content: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,17 +52,15 @@ class PlanPage extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Color(0xFF8EA7FA),
-                        Color(0xFF0969D4)
-                      ], // Same gradient as in home.dart
+                        Color(0xFF0969D4), // Same gradient as in home.dart
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Action for button (currently nothing here)
-                    },
+                    onPressed: _shareContent, // Updated action for button
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           Colors.transparent, // Set background to transparent

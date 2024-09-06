@@ -214,6 +214,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_share_me:
+    dependency: "direct main"
+    description:
+      name: flutter_share_me
+      sha256: ecf43034a5a19c9373ccf1b4a57e2de330c0ef4ca0df0e0b807f522860ab379c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter

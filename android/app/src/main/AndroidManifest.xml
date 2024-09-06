@@ -41,4 +41,8 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+    <!-- Add permissions for sharing -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Add other permissions if necessary -->
 </manifest>

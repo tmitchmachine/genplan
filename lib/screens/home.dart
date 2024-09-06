@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:genplan/screens/plan.dart'; // Ensure this is correct
-import 'package:genplan/screens/sign_in_options.dart';
 import 'package:genplan/screens/menu.dart';
 
 class HomePage extends StatelessWidget {

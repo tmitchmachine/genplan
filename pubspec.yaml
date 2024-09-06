@@ -1,5 +1,6 @@
 name: genplan
 description: "A Flutter project designed to help people generate plans"
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -13,20 +14,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   shared_preferences: ^2.3.2
   firebase_auth: ^4.16.0
   firebase_core: ^2.24.2
   cloud_firestore: ^4.14.0
-  share_plus: ^10.0.2
-
-  # Removed Firebase dependencies
-  # firebase_auth: ^5.1.2
-  # firebase_dynamic_links: ^6.0.3
-  # firebase_core: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -60,20 +52,10 @@ flutter_launcher_icons:
     generate: true
     image_path: "assets/icon/icon.png"
   android_adaptive_icon:
-    foreground_image: "assets/icon/foreground_image.png"
+    foreground_image: "assets/icon/icon.png"
     background_color: "#84A1F6"
 
-# The "flutter_lints" package below contains a set of recommended lints to
-# encourage good coding practices. The lint set provided by the package is
-# activated in the `analysis_options.yaml` file located at the root of your
-# package. See that file for information about deactivating specific lint
-# rules and activating additional ones.
-# flutter_lints: ^3.0.0
-
 flutter:
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:

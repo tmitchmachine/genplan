@@ -1,19 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 
 class PlanPage extends StatelessWidget {
-  // Method to share content
-  Future<void> _shareContent() async {
-    try {
-      await Share.share(
-        'Check out this awesome content!',
-      );
-    } catch (e) {
-      // Handle the exception if sharing fails
-      print('Error sharing content: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +23,7 @@ class PlanPage extends StatelessWidget {
             right: 0,
             child: Center(
               child: const Text(
-                'Plan Placeholder',
+                'Plan Placeholdtcher',
                 style: TextStyle(fontSize: 22),
               ),
             ),
@@ -60,7 +47,10 @@ class PlanPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: ElevatedButton(
-                    onPressed: _shareContent, // Updated action for button
+                    onPressed: () {
+                      // Replace sharing logic with your desired action
+                      print('Share button pressed');
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           Colors.transparent, // Set background to transparent

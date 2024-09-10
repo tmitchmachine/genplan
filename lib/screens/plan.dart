@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PlanPage extends StatelessWidget {
+  final String placeholderText = 'Plan Placeholder'; // Fixed the typo
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,8 +25,8 @@ class PlanPage extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: const Text(
-                'Plan Placeholdtcher',
+              child: Text(
+                placeholderText,
                 style: TextStyle(fontSize: 22),
               ),
             ),
@@ -48,8 +51,8 @@ class PlanPage extends StatelessWidget {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Replace sharing logic with your desired action
-                      print('Share button pressed');
+                      // Share the placeholder text
+                      shareText(placeholderText);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
@@ -99,5 +102,9 @@ class PlanPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void shareText(String text) {
+    Share.share(text, subject: 'Sharing a Plan'); // Add subject if needed
   }
 }

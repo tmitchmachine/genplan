@@ -54,5 +54,22 @@
         <string>groupme</string>
         <string>mailto</string>
     </array>
+
+    <!-- Privacy settings for iOS 14+ -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to your photo library to share content.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>We need access to your camera to share content.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need access to your microphone to share audio content.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need access to your location to improve sharing options.</string>
+
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

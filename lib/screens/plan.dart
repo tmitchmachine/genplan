@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; // Import MDI icons
 import 'package:share_plus/share_plus.dart';
 
 class PlanPage extends StatelessWidget {
-  final String placeholderText = 'Plan Placeholder'; // Fixed the typo
+  final String planDetails;
+
+  PlanPage({required this.planDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +19,19 @@ class PlanPage extends StatelessWidget {
         ),
         centerTitle: true,
         automaticallyImplyLeading: false, // Removes the menu in the upper left
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(
+                right: 16.0), // Adjust padding to move the icon left
+            child: IconButton(
+              icon: Icon(MdiIcons.calendar), // Use sleek MDI calendar icon
+              onPressed: () {
+                // Handle calendar icon press
+                print('Calendar icon pressed');
+              },
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -25,9 +41,15 @@ class PlanPage extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: Text(
-                placeholderText,
-                style: TextStyle(fontSize: 22),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    planDetails, // Display the plan details as a single string
+                    style: TextStyle(fontSize: 22),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ),
@@ -51,8 +73,8 @@ class PlanPage extends StatelessWidget {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      // Share the placeholder text
-                      shareText(placeholderText);
+                      // Share the plan details
+                      shareText(planDetails);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
@@ -62,9 +84,7 @@ class PlanPage extends StatelessWidget {
                       minimumSize:
                           Size(200, 50), // Button size like in home.dart
                       padding: EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 32,
-                      ), // Button padding
+                          vertical: 16, horizontal: 32), // Button padding
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                             8.0), // Match the container's border radius
@@ -85,10 +105,7 @@ class PlanPage extends StatelessWidget {
                     elevation: 0, // No shadow
                     minimumSize:
                         Size(200, 50), // Matching size with Share button
-                    padding: EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 32,
-                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(8.0), // Match border radius

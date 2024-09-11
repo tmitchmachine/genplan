@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:math'; // For generating random ideas
 import 'package:genplan/screens/plan.dart'; // Ensure this is correct
 import 'package:genplan/screens/menu.dart';
 
@@ -13,6 +14,63 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isThumbsUpSelected = false;
   bool _isThumbsDownSelected = false;
+
+  // Predefined list of AI-generated plan ideas
+  final List<String> _planIdeas = [
+    "Start a morning meditation routine",
+    "Plan a weekend getaway to the mountains",
+    "Create a weekly meal plan for healthy eating",
+    "Begin a new book you've always wanted to read",
+    "Explore a new hobby like painting or photography",
+    "Organize a family game night",
+    "Plan a digital detox day",
+    "Set up a home workout schedule",
+    "Cook a new recipe from a different culture",
+    "Take an online course to learn a new skill",
+  ];
+
+  String _generatedIdea = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _generateIdea(); // Generate an idea when the page loads
+  }
+
+  void _generateIdea() {
+    final random = Random();
+    setState(() {
+      _generatedIdea = _planIdeas[random.nextInt(_planIdeas.length)];
+    });
+  }
+
+  void _handleThumbsUp() {
+    setState(() {
+      _isThumbsUpSelected = true;
+      _isThumbsDownSelected = false;
+    });
+
+    Future.delayed(Duration(milliseconds: 300), () {
+      _generateIdea(); // Generate a new idea after the transition
+      setState(() {
+        _isThumbsUpSelected = false;
+      });
+    });
+  }
+
+  void _handleThumbsDown() {
+    setState(() {
+      _isThumbsDownSelected = true;
+      _isThumbsUpSelected = false;
+    });
+
+    Future.delayed(Duration(milliseconds: 300), () {
+      _generateIdea(); // Generate a new idea after the transition
+      setState(() {
+        _isThumbsDownSelected = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +107,20 @@ class _HomePageState extends State<HomePage> {
             left: 0,
             right: 0,
             child: Center(
-              child: const Text(
-                'Idea Placeholder',
-                style: TextStyle(fontSize: 22),
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 300), // Faster transition
+                transitionBuilder: (widget, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: widget,
+                  );
+                },
+                child: Text(
+                  _generatedIdea, // Display the generated idea
+                  key: ValueKey<String>(_generatedIdea),
+                  style: TextStyle(fontSize: 22),
+                  textAlign: TextAlign.center, // Center align the text
+                ),
               ),
             ),
           ),
@@ -66,13 +135,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0),
                   child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isThumbsUpSelected = !_isThumbsUpSelected;
-                        _isThumbsDownSelected =
-                            false; // Reset thumbs down when thumbs up is selected
-                      });
-                    },
+                    onTap: _handleThumbsUp,
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 300),
                       width: _isThumbsUpSelected ? 48 : 40,
@@ -117,7 +180,8 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PlanPage(),
+                          builder: (context) =>
+                              PlanPage(planDetails: _generatedIdea),
                         ),
                       );
                     },
@@ -141,13 +205,7 @@ class _HomePageState extends State<HomePage> {
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isThumbsDownSelected = !_isThumbsDownSelected;
-                        _isThumbsUpSelected =
-                            false; // Reset thumbs up when thumbs down is selected
-                      });
-                    },
+                    onTap: _handleThumbsDown,
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 300),
                       width: _isThumbsDownSelected ? 48 : 40,

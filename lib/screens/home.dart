@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:math'; // For generating random ideas
 import 'package:genplan/screens/plan.dart'; // Ensure this is correct
 import 'package:genplan/screens/menu.dart';
+import 'package:http/http.dart' as http; // Import the http package
+import 'dart:convert'; // For JSON encoding/decoding
 
 class HomePage extends StatefulWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -15,7 +17,6 @@ class _HomePageState extends State<HomePage> {
   bool _isThumbsUpSelected = false;
   bool _isThumbsDownSelected = false;
 
-  // Predefined list of AI-generated plan ideas
   final List<String> _planIdeas = [
     "Start a morning meditation routine",
     "Plan a weekend getaway to the mountains",
@@ -30,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   ];
 
   String _generatedIdea = '';
+  String _fullPlan = '';
 
   @override
   void initState() {
@@ -70,6 +72,84 @@ class _HomePageState extends State<HomePage> {
         _isThumbsDownSelected = false;
       });
     });
+  }
+
+  Future<void> _handleGeneratePlan() async {
+    final apiUrl =
+        'https://api.replicate.com/v1/models/meta/meta-llama-3-70b-instruct/predictions';
+    final apiKey = 'r8_EKyL2zwR3kFuf6sOpIHJQlt1nElVfvA3HgNjg'; // Your API token
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'stream': true,
+          'input': {
+            'top_p': 0.9,
+            'prompt': _generatedIdea,
+            'min_tokens': 0,
+            'temperature': 0.6,
+            'prompt_template':
+                "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+            'presence_penalty': 1.15,
+          },
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final streamUrl = data['urls']['stream'];
+        _streamResponse(streamUrl);
+      } else {
+        print(
+            'Failed to generate plan: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> _streamResponse(String streamUrl) async {
+    try {
+      final response = await http.get(
+        Uri.parse(streamUrl),
+        headers: {
+          'Accept': 'text/event-stream',
+          'Cache-Control': 'no-store',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Handle streaming response
+        final lines = response.body.split('\n');
+        for (var line in lines) {
+          if (line.startsWith('data: ')) {
+            final jsonResponse = jsonDecode(line.substring(6));
+            if (jsonResponse.containsKey('text')) {
+              setState(() {
+                _fullPlan +=
+                    jsonResponse['text'] + '\n'; // Append text to the plan
+              });
+            }
+          }
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlanPage(planDetails: _fullPlan),
+          ),
+        );
+      } else {
+        print(
+            'Failed to stream response: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
@@ -176,15 +256,7 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PlanPage(planDetails: _generatedIdea),
-                        ),
-                      );
-                    },
+                    onPressed: _handleGeneratePlan,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       foregroundColor: Colors.white,

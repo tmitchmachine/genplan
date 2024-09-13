@@ -5,6 +5,7 @@ import 'package:genplan/screens/plan.dart'; // Ensure this is correct
 import 'package:genplan/screens/menu.dart';
 import 'package:http/http.dart' as http; // Import the http package
 import 'dart:convert'; // For JSON encoding/decoding
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -75,38 +76,83 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _handleGeneratePlan() async {
-    final apiUrl =
-        'https://api.replicate.com/v1/models/meta/meta-llama-3-70b-instruct/predictions';
-    final apiKey = 'r8_EKyL2zwR3kFuf6sOpIHJQlt1nElVfvA3HgNjg'; // Your API token
+    final url = Uri.parse(
+        'https://api.replicate.com/v1/models/meta/meta-llama-3-70b-instruct/predictions');
+
+    final headers = {
+      'Authorization': 'Bearer r8_SnnoM8rom6gUHZpb1sxPg74yJeOZ3Bl15Rw9g',
+      'Content-Type': 'application/json',
+    };
+
+    final body = jsonEncode({
+      "input": {
+        "top_k": 0,
+        "top_p": 0.9,
+        "prompt": _generatedIdea,
+        "max_tokens": 512,
+        "min_tokens": 0,
+        "temperature": 0.6,
+        "system_prompt": "You are a helpful assistant",
+        "length_penalty": 1,
+        "stop_sequences": "<|end_of_text|>,<|eot_id|>",
+        "prompt_template":
+            "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+        "presence_penalty": 1.15,
+        "log_performance_metrics": false
+      }
+    });
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'stream': true,
-          'input': {
-            'top_p': 0.9,
-            'prompt': _generatedIdea,
-            'min_tokens': 0,
-            'temperature': 0.6,
-            'prompt_template':
-                "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
-            'presence_penalty': 1.15,
-          },
-        }),
+      // Step 1: Make the initial POST request
+      final postResponse = await http.post(
+        url,
+        headers: headers,
+        body: body,
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final streamUrl = data['urls']['stream'];
-        _streamResponse(streamUrl);
+      if (postResponse.statusCode == 201) {
+        final responseData = jsonDecode(postResponse.body);
+        final predictionId = responseData['id'];
+
+        if (predictionId != null) {
+          print('Prediction ID: $predictionId');
+
+          // Step 2: Polling the result every 2 seconds until output is available
+          Timer.periodic(Duration(seconds: 2), (timer) async {
+            final resultUrl = Uri.parse(
+                'https://api.replicate.com/v1/predictions/$predictionId');
+
+            final resultResponse = await http.get(resultUrl, headers: headers);
+
+            if (resultResponse.statusCode == 200) {
+              final resultData = jsonDecode(resultResponse.body);
+              final output = resultData['output'];
+
+              if (output != null) {
+                final outputString = output.join();
+                print('Prediction Output: $outputString');
+
+                timer.cancel(); // Stop polling once we get the result
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PlanPage(planDetails: outputString),
+                  ),
+                );
+              } else {
+                print('Prediction still in progress...');
+              }
+            } else {
+              print(
+                  'Failed to fetch result with status code: ${resultResponse.statusCode}');
+              timer.cancel(); // Stop polling if there is an error
+            }
+          });
+        } else {
+          print('No prediction ID found in response.');
+        }
       } else {
-        print(
-            'Failed to generate plan: ${response.statusCode} ${response.reasonPhrase}');
+        print('Failed with status code: ${postResponse.statusCode}');
       }
     } catch (e) {
       print('Error: $e');

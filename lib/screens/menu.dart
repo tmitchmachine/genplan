@@ -6,6 +6,8 @@ import 'package:genplan/screens/notification.dart'
     as custom_notification; // Aliased import
 import 'package:genplan/screens/personalize_experience.dart'; // Import PersonalizeExperience screen
 import 'package:genplan/screens/home.dart'; // Import HomePage screen
+import 'package:genplan/screens/liked_ideas.dart'; // New screen for liked ideas
+import 'package:genplan/screens/disliked_ideas.dart'; // Import DislikedIdeas screen
 
 class MenuPage extends StatelessWidget {
   final dynamic auth; // Replace 'dynamic' with the actual type of 'auth'
@@ -48,7 +50,7 @@ class MenuPage extends StatelessWidget {
               ),
             ),
             Divider(color: Colors.grey),
-            SizedBox(height: 16), // Space between items
+            SizedBox(height: 16),
 
             GestureDetector(
               onTap: () {
@@ -95,6 +97,42 @@ class MenuPage extends StatelessWidget {
               },
               child: Text(
                 'Personalize Experience',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Divider(color: Colors.grey),
+            SizedBox(height: 16),
+
+            // New Liked Ideas menu item
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        LikedIdeasPage(), // Navigate to Liked Ideas screen
+                  ),
+                );
+              },
+              child: Text(
+                'Liked Ideas',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Divider(color: Colors.grey),
+            SizedBox(height: 16),
+
+            // New Disliked Ideas menu item
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        DislikedIdeasPage(), // Navigate to Disliked Ideas screen
+                  ),
+                );
+              },
+              child: Text(
+                'Disliked Ideas',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),

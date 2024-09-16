@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:math'; // For generating random ideas
 import 'package:genplan/screens/plan.dart'; // Ensure this is correct
@@ -45,6 +46,29 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _generatedIdea = _planIdeas[random.nextInt(_planIdeas.length)];
     });
+  }
+
+  Future<void> _savePlanToFirestore(String idea, String plan) async {
+    final user = widget.auth.currentUser;
+
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('plans')
+            .add({
+          'idea': idea,
+          'plan': plan,
+          'createdAt': Timestamp.now(),
+        });
+        print('Plan saved to Firestore: $plan');
+      } catch (e) {
+        print('Error saving plan to Firestore: $e');
+      }
+    } else {
+      print('No user signed in.');
+    }
   }
 
   void _handleThumbsUp() {
@@ -133,6 +157,10 @@ class _HomePageState extends State<HomePage> {
                 print('Prediction Output: $outputString');
 
                 timer.cancel(); // Stop polling once we get the result
+
+                // Save the plan to Firestore
+                await _savePlanToFirestore(_generatedIdea, outputString);
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -153,45 +181,6 @@ class _HomePageState extends State<HomePage> {
         }
       } else {
         print('Failed with status code: ${postResponse.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
-
-  Future<void> _streamResponse(String streamUrl) async {
-    try {
-      final response = await http.get(
-        Uri.parse(streamUrl),
-        headers: {
-          'Accept': 'text/event-stream',
-          'Cache-Control': 'no-store',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        // Handle streaming response
-        final lines = response.body.split('\n');
-        for (var line in lines) {
-          if (line.startsWith('data: ')) {
-            final jsonResponse = jsonDecode(line.substring(6));
-            if (jsonResponse.containsKey('text')) {
-              setState(() {
-                _fullPlan +=
-                    jsonResponse['text'] + '\n'; // Append text to the plan
-              });
-            }
-          }
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PlanPage(planDetails: _fullPlan),
-          ),
-        );
-      } else {
-        print(
-            'Failed to stream response: ${response.statusCode} ${response.reasonPhrase}');
       }
     } catch (e) {
       print('Error: $e');
@@ -304,8 +293,8 @@ class _HomePageState extends State<HomePage> {
                   child: ElevatedButton(
                     onPressed: _handleGeneratePlan,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.transparent, // Background color
+                      foregroundColor: Colors.white, // Text color
                       elevation: 0,
                       minimumSize: Size(200, 50),
                       padding: EdgeInsets.symmetric(
@@ -313,7 +302,10 @@ class _HomePageState extends State<HomePage> {
                         horizontal: 32,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      side: BorderSide(
+                        color: Colors.transparent, // Border color
                       ),
                     ),
                     child: const Text('Generate Plan'),

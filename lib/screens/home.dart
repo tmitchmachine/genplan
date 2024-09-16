@@ -48,6 +48,28 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _saveFeedbackToFirestore(String feedbackType) async {
+    final user = widget.auth.currentUser;
+
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection(feedbackType) // Use the feedbackType directly
+            .add({
+          'idea': _generatedIdea,
+          'timestamp': Timestamp.now(),
+        });
+        print('Feedback saved to Firestore: $feedbackType');
+      } catch (e) {
+        print('Error saving feedback to Firestore: $e');
+      }
+    } else {
+      print('No user signed in.');
+    }
+  }
+
   Future<void> _savePlanToFirestore(String idea, String plan) async {
     final user = widget.auth.currentUser;
 
@@ -56,7 +78,7 @@ class _HomePageState extends State<HomePage> {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
-            .collection('plans')
+            .collection('generated_plans') // Use the specific sub-collection
             .add({
           'idea': idea,
           'plan': plan,
@@ -78,6 +100,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     Future.delayed(Duration(milliseconds: 300), () {
+      _saveFeedbackToFirestore('liked_ideas'); // Save feedback to Firestore
       _generateIdea(); // Generate a new idea after the transition
       setState(() {
         _isThumbsUpSelected = false;
@@ -92,6 +115,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     Future.delayed(Duration(milliseconds: 300), () {
+      _saveFeedbackToFirestore('disliked_ideas'); // Save feedback to Firestore
       _generateIdea(); // Generate a new idea after the transition
       setState(() {
         _isThumbsDownSelected = false;

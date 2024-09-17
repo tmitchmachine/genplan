@@ -19,33 +19,42 @@ class _HomePageState extends State<HomePage> {
   bool _isThumbsUpSelected = false;
   bool _isThumbsDownSelected = false;
 
-  final List<String> _planIdeas = [
-    "Start a morning meditation routine",
-    "Plan a weekend getaway to the mountains",
-    "Create a weekly meal plan for healthy eating",
-    "Begin a new book you've always wanted to read",
-    "Explore a new hobby like painting or photography",
-    "Organize a family game night",
-    "Plan a digital detox day",
-    "Set up a home workout schedule",
-    "Cook a new recipe from a different culture",
-    "Take an online course to learn a new skill",
-  ];
-
+  List<String> _planIdeas = [];
   String _generatedIdea = '';
   String _fullPlan = '';
 
   @override
   void initState() {
     super.initState();
-    _generateIdea(); // Generate an idea when the page loads
+    _fetchIdeasFromFirestore(); // Fetch ideas when the page loads
+  }
+
+  Future<void> _fetchIdeasFromFirestore() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('ideas').get();
+      final ideas = snapshot.docs.map((doc) => doc['idea'] as String).toList();
+
+      if (ideas.isNotEmpty) {
+        setState(() {
+          _planIdeas = ideas;
+          _generateIdea(); // Generate an idea after fetching
+        });
+      } else {
+        print('No ideas found in Firestore.');
+      }
+    } catch (e) {
+      print('Error fetching ideas from Firestore: $e');
+    }
   }
 
   void _generateIdea() {
-    final random = Random();
-    setState(() {
-      _generatedIdea = _planIdeas[random.nextInt(_planIdeas.length)];
-    });
+    if (_planIdeas.isNotEmpty) {
+      final random = Random();
+      setState(() {
+        _generatedIdea = _planIdeas[random.nextInt(_planIdeas.length)];
+      });
+    }
   }
 
   Future<void> _saveFeedbackToFirestore(String feedbackType) async {

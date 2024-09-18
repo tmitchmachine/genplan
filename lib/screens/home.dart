@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:math'; // For generating random ideas
 import 'package:genplan/screens/plan.dart'; // Ensure this is correct
@@ -7,6 +6,7 @@ import 'package:genplan/screens/menu.dart';
 import 'package:http/http.dart' as http; // Import the http package
 import 'dart:convert'; // For JSON encoding/decoding
 import 'dart:async';
+import 'package:genplan/data/ideas.dart'; // Import the local ideas list
 
 class HomePage extends StatefulWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -26,26 +26,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchIdeasFromFirestore(); // Fetch ideas when the page loads
+    _fetchIdeasFromLocal(); // Fetch ideas from the local file when the page loads
   }
 
-  Future<void> _fetchIdeasFromFirestore() async {
-    try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('ideas').get();
-      final ideas = snapshot.docs.map((doc) => doc['idea'] as String).toList();
-
-      if (ideas.isNotEmpty) {
-        setState(() {
-          _planIdeas = ideas;
-          _generateIdea(); // Generate an idea after fetching
-        });
-      } else {
-        print('No ideas found in Firestore.');
-      }
-    } catch (e) {
-      print('Error fetching ideas from Firestore: $e');
-    }
+  void _fetchIdeasFromLocal() {
+    setState(() {
+      _planIdeas = ideasList; // Fetch from the hardcoded list in ideas.dart
+      _generateIdea(); // Generate an idea after fetching
+    });
   }
 
   void _generateIdea() {
@@ -57,51 +45,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _saveFeedbackToFirestore(String feedbackType) async {
-    final user = widget.auth.currentUser;
-
-    if (user != null) {
-      try {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection(feedbackType) // Use the feedbackType directly
-            .add({
-          'idea': _generatedIdea,
-          'timestamp': Timestamp.now(),
-        });
-        print('Feedback saved to Firestore: $feedbackType');
-      } catch (e) {
-        print('Error saving feedback to Firestore: $e');
-      }
-    } else {
-      print('No user signed in.');
-    }
-  }
-
-  Future<void> _savePlanToFirestore(String idea, String plan) async {
-    final user = widget.auth.currentUser;
-
-    if (user != null) {
-      try {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection('generated_plans') // Use the specific sub-collection
-            .add({
-          'idea': idea,
-          'plan': plan,
-          'createdAt': Timestamp.now(),
-        });
-        print('Plan saved to Firestore: $plan');
-      } catch (e) {
-        print('Error saving plan to Firestore: $e');
-      }
-    } else {
-      print('No user signed in.');
-    }
-  }
-
   void _handleThumbsUp() {
     setState(() {
       _isThumbsUpSelected = true;
@@ -109,7 +52,6 @@ class _HomePageState extends State<HomePage> {
     });
 
     Future.delayed(Duration(milliseconds: 300), () {
-      _saveFeedbackToFirestore('liked_ideas'); // Save feedback to Firestore
       _generateIdea(); // Generate a new idea after the transition
       setState(() {
         _isThumbsUpSelected = false;
@@ -124,7 +66,6 @@ class _HomePageState extends State<HomePage> {
     });
 
     Future.delayed(Duration(milliseconds: 300), () {
-      _saveFeedbackToFirestore('disliked_ideas'); // Save feedback to Firestore
       _generateIdea(); // Generate a new idea after the transition
       setState(() {
         _isThumbsDownSelected = false;
@@ -190,9 +131,6 @@ class _HomePageState extends State<HomePage> {
                 print('Prediction Output: $outputString');
 
                 timer.cancel(); // Stop polling once we get the result
-
-                // Save the plan to Firestore
-                await _savePlanToFirestore(_generatedIdea, outputString);
 
                 Navigator.push(
                   context,
@@ -337,11 +275,14 @@ class _HomePageState extends State<HomePage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
-                      side: BorderSide(
-                        color: Colors.transparent, // Border color
+                      side: BorderSide.none,
+                    ),
+                    child: const Text(
+                      'Generate Plan',
+                      style: TextStyle(
+                        fontSize: 12.5,
                       ),
                     ),
-                    child: const Text('Generate Plan'),
                   ),
                 ),
                 // Thumbs down icon with a nice UI

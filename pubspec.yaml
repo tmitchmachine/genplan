@@ -25,6 +25,7 @@ dependencies:
   http: ^0.13.0
   day_night_switcher: ^0.2.0+1
   provider: ^6.1.2
+  firebase_messaging: ^15.1.2
 
 dev_dependencies:
   flutter_test:

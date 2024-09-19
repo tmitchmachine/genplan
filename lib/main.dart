@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:genplan/firebase_options.dart';
 import 'package:genplan/screens/sign_in_options.dart'; // Ensure this path matches your file structure
+import 'package:provider/provider.dart'; // Correct import for provider package
+import 'package:genplan/provider/theme_provider.dart'; // Correct import for ThemeProvider
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,15 +18,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'GenPlan', // Replace with your app's actual title
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (_) => ThemeProvider(), // Initialize ThemeProvider
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'GenPlan', // Replace with your app's actual title
+            theme: themeProvider.themeData, // Apply theme dynamically
+            home:
+                SignInOptionsPage(), // Replace with your actual initial screen
+          );
+        },
       ),
-      home:
-          SignInOptionsPage(), // Ensure LoginPage is correctly defined in 'screens/login_page.dart'
     );
   }
 }

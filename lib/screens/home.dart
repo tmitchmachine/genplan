@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http; // Import the http package
 import 'dart:convert'; // For JSON encoding/decoding
 import 'dart:async';
 import 'package:genplan/data/ideas.dart'; // Import the local ideas list
+import 'package:provider/provider.dart'; // Import provider package
+import 'package:genplan/provider/theme_provider.dart'; // Import ThemeProvider
 
 class HomePage extends StatefulWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -160,6 +162,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Access the current theme using ThemeProvider
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -167,6 +173,8 @@ class _HomePageState extends State<HomePage> {
             'https://firebasestorage.googleapis.com/v0/b/genplan-007.appspot.com/o/menu.png?alt=media&token=1dfccf5d-78da-42d4-a0a9-5a4ecda61ebd',
             width: 24,
             height: 24,
+            color:
+                isDarkMode ? Colors.white : Colors.black, // Adjust icon color
           ),
           onPressed: () {
             Navigator.push(

@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:genplan/screens/sign_in_options.dart';
-import 'package:genplan/screens/interests.dart'; // Use OnboardingOne if Interests doesn't exist
+import 'package:genplan/screens/interests.dart';
 import 'package:genplan/screens/location.dart';
-import 'package:genplan/screens/notification.dart'
-    as custom_notification; // Aliased import
-import 'package:genplan/screens/personalize_experience.dart'; // Import PersonalizeExperience screen
-import 'package:genplan/screens/home.dart'; // Import HomePage screen
-import 'package:genplan/screens/liked_ideas.dart'; // New screen for liked ideas
-import 'package:genplan/screens/disliked_ideas.dart'; // Import DislikedIdeas screen
+import 'package:genplan/screens/notification.dart' as custom_notification;
+import 'package:genplan/screens/personalize_experience.dart';
+import 'package:genplan/screens/home.dart';
+import 'package:genplan/screens/liked_ideas.dart';
+import 'package:genplan/screens/disliked_ideas.dart';
+import 'package:genplan/screens/mode.dart'; // Import the ModePage
+import 'package:day_night_switcher/day_night_switcher.dart'; // Import for day/night mode switcher
 
-class MenuPage extends StatelessWidget {
-  final dynamic auth; // Replace 'dynamic' with the actual type of 'auth'
+class MenuPage extends StatefulWidget {
+  final dynamic auth;
 
   MenuPage({required this.auth});
+
+  @override
+  _MenuPageState createState() => _MenuPageState();
+}
+
+class _MenuPageState extends State<MenuPage> {
+  bool isDarkModeEnabled = false; // To track mode state
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +31,7 @@ class MenuPage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => HomePage(), // Navigate to HomePage
+                builder: (context) => HomePage(),
               ),
             );
           },
@@ -39,8 +47,7 @@ class MenuPage extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        Interests(), // Corrected to OnboardingOne if needed
+                    builder: (context) => Interests(),
                   ),
                 );
               },
@@ -56,8 +63,7 @@ class MenuPage extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        Location(), // Correct screen for Location
+                    builder: (context) => Location(),
                   ),
                 );
               },
@@ -73,8 +79,7 @@ class MenuPage extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => custom_notification
-                        .Notification(), // Use aliased import
+                    builder: (context) => custom_notification.Notification(),
                   ),
                 );
               },
@@ -90,8 +95,7 @@ class MenuPage extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        PersonalizeExperience(), // Navigate to PersonalizeExperience screen
+                    builder: (context) => PersonalizeExperience(),
                   ),
                 );
               },
@@ -103,13 +107,11 @@ class MenuPage extends StatelessWidget {
             Divider(color: Colors.grey),
             SizedBox(height: 16),
 
-            // New Liked Ideas menu item
             GestureDetector(
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        LikedIdeasPage(), // Navigate to Liked Ideas screen
+                    builder: (context) => LikedIdeasPage(),
                   ),
                 );
               },
@@ -121,13 +123,11 @@ class MenuPage extends StatelessWidget {
             Divider(color: Colors.grey),
             SizedBox(height: 16),
 
-            // New Disliked Ideas menu item
             GestureDetector(
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        DislikedIdeasPage(), // Navigate to Disliked Ideas screen
+                    builder: (context) => DislikedIdeasPage(),
                   ),
                 );
               },
@@ -137,12 +137,29 @@ class MenuPage extends StatelessWidget {
               ),
             ),
             Divider(color: Colors.grey),
+            SizedBox(height: 16),
+
+            // New "Mode" item to link to ModePage
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ModePage(), // Navigate to ModePage
+                  ),
+                );
+              },
+              child: Text(
+                'Mode',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Divider(color: Colors.grey),
             SizedBox(height: 32),
 
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  await auth.signOut();
+                  await widget.auth.signOut();
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => SignInOptionsPage(),

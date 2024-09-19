@@ -26,7 +26,7 @@ class ModePage extends StatelessWidget {
             DayNightSwitcher(
               isDarkModeEnabled: themeProvider.isDarkMode,
               onStateChanged: (isDarkMode) {
-                themeProvider.toggleMode(); // Toggle the global theme
+                themeProvider.toggleMode(); // Update theme mode and Firestore
               },
             ),
             const SizedBox(height: 20),

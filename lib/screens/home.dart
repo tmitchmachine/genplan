@@ -225,7 +225,7 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Thumbs up icon with a nice UI
+                // Thumbs up icon with a gradient UI
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0),
                   child: GestureDetector(
@@ -235,19 +235,24 @@ class _HomePageState extends State<HomePage> {
                       width: _isThumbsUpSelected ? 48 : 40,
                       height: _isThumbsUpSelected ? 48 : 40,
                       decoration: BoxDecoration(
-                        color: _isThumbsUpSelected
-                            ? Colors.black
-                            : Colors.transparent, // Transparent when unselected
+                        gradient: _isThumbsUpSelected
+                            ? LinearGradient(
+                                colors: [Color(0xFF8EA7FA), Color(0xFF0969D4)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null, // No gradient when unselected
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          if (_isThumbsUpSelected)
-                            BoxShadow(
-                              color: Colors.black
-                                  .withOpacity(0.3), // Lighter shadow
-                              spreadRadius: 3,
-                              blurRadius: 8,
-                            ),
-                        ],
+                        boxShadow: _isThumbsUpSelected
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withOpacity(0.3), // Lighter shadow
+                                  spreadRadius: 3,
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : null,
                       ),
                       child: Icon(
                         Icons.thumb_up_alt_rounded,
@@ -293,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                // Thumbs down icon with a nice UI
+                // Thumbs down icon with a gradient UI
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: GestureDetector(
@@ -303,19 +308,24 @@ class _HomePageState extends State<HomePage> {
                       width: _isThumbsDownSelected ? 48 : 40,
                       height: _isThumbsDownSelected ? 48 : 40,
                       decoration: BoxDecoration(
-                        color: _isThumbsDownSelected
-                            ? Colors.black
-                            : Colors.transparent, // Transparent when unselected
+                        gradient: _isThumbsDownSelected
+                            ? LinearGradient(
+                                colors: [Color(0xFF8EA7FA), Color(0xFF0969D4)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null, // No gradient when unselected
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          if (_isThumbsDownSelected)
-                            BoxShadow(
-                              color: Colors.black
-                                  .withOpacity(0.3), // Lighter shadow
-                              spreadRadius: 3,
-                              blurRadius: 8,
-                            ),
-                        ],
+                        boxShadow: _isThumbsDownSelected
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withOpacity(0.3), // Lighter shadow
+                                  spreadRadius: 3,
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : null,
                       ),
                       child: Icon(
                         Icons.thumb_down_alt_rounded,

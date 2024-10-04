@@ -55,6 +55,23 @@
         <string>mailto</string>
     </array>
 
+    <!-- Firebase and Push Notifications -->
+    <key>FirebaseAppDelegateProxyEnabled</key>
+    <false/>
+    <key>NSPushNotificationsUsageDescription</key>
+    <string>We need permission to send you push notifications.</string>
+    
+    <!-- Local Notifications -->
+    <key>NSUserNotificationUsageDescription</key>
+    <string>We need permission to show notifications.</string>
+
+    <!-- Background Modes for Firebase Messaging -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+    </array>
+
     <!-- Privacy settings for iOS 14+ -->
     <key>NSPhotoLibraryUsageDescription</key>
     <string>We need access to your photo library to share content.</string>
@@ -70,6 +87,18 @@
     <dict>
         <key>NSAllowsArbitraryLoads</key>
         <true/>
+        <!-- Optionally, restrict arbitrary loads to specific domains
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>yourdomain.com</key>
+            <dict>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+                <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+            </dict>
+        </dict>
+        -->
     </dict>
 </dict>
 </plist>

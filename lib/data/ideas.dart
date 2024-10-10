@@ -234,7 +234,7 @@ final List<String> ideasList = [
   'Plan a night at a local arcade or gaming bar',
   'Go on a night cruise with live entertainment',
   'Try a traditional Japanese tea ceremony experience',
-  'Host a murder mystery dinner party',
+  'Host a dinner party',
   'Plan a weekend getaway to a beachside cabin or resort',
   'Attend a rooftop dinner with a live band',
   'Take a calligraphy or lettering class',

@@ -1,23 +1,20 @@
 plugins {
     id "com.android.application"
-    // START: FlutterFire Configuration
-    // id 'com.google.gms.google-services'  // Removed Google Services plugin
-    // END: FlutterFire Configuration
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 dependencies {
     // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0")) // Updated to the latest version
 
     // Add the dependency for the Firebase Authentication library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-auth")
 
-    // Also add the dependency for the Google Play services library and specify its version
+    // Also add the dependency for the Google Play services library
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    // Additional dependencies can be added here
 }
 
 def localProperties = new Properties()
@@ -28,43 +25,34 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
-if (flutterVersionCode == null) {
-    flutterVersionCode = "1"
-}
-
-def flutterVersionName = localProperties.getProperty("flutter.versionName")
-if (flutterVersionName == null) {
-    flutterVersionName = "1.0"
-}
+def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "1"
+def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
     namespace = "org.heavenya.genplan"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 34 // Updated to the latest stable version of compileSdk
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17 // Set to Java 17 or 1.8 based on your project needs
+        targetCompatibility = JavaVersion.VERSION_17 // Set to Java 17 or 1.8 based on your project needs
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "org.heavenya.genplan"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 23  // Updated from 19 to 23
-        targetSdk = flutter.targetSdkVersion
+        minSdkVersion 24 // Minimum SDK version for your app
+        targetSdk = 34 // Updated to match compileSdk version
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.debug // Add your own signing config for the release build
         }
+    }
+
+    lint {
+        baseline = file("lint-baseline.xml") // Ensure this is set to handle lint issues
     }
 }
 

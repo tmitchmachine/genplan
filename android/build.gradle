@@ -1,11 +1,11 @@
 buildscript {
-    ext.kotlin_version = '1.9.0' // Updated to a compatible Kotlin version
+    ext.kotlin_version = '1.9.10' // Updated to a compatible Kotlin version
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.0' // Updated to the latest stable version of the Gradle plugin
+        classpath 'com.android.tools.build:gradle:8.0.0' // Updated to the latest stable version of the Gradle plugin
         classpath 'com.google.gms:google-services:4.3.15' // Uncomment this line if you're using Firebase services
     }
 }

@@ -1,2 +1,24 @@
-#include? "Pods/Target Support Files/Pods-Runner/Release.xcconfig"
+#include "Pods/Target Support Files/Pods-Runner/Release.xcconfig"
 #include "Generated.xcconfig"
+
+# Flutter settings
+FLUTTER_ROOT=/path/to/flutter  # Replace with your actual Flutter SDK path
+FLUTTER_APPLICATION_PATH=${PROJECT_DIR}
+FLUTTER_TARGET=${FLUTTER_APPLICATION_PATH}/lib/main.dart
+FLUTTER_BUILD_DIR=build
+SYMROOT=${SOURCE_ROOT}/../build/ios
+
+# iOS Deployment Target
+IPHONEOS_DEPLOYMENT_TARGET=13.0
+
+# Include Flutter framework paths
+FRAMEWORK_SEARCH_PATHS=$(inherited) "${FLUTTER_ROOT}/bin/cache/artifacts/engine/ios"
+
+# Ensure the use of the latest Swift version
+SWIFT_VERSION=5.0
+
+# If you have any specific Swift compiler flags, you can add them here
+OTHER_CFLAGS=$(inherited) -DDEBUG=1
+
+# Other flags that may be needed for Firebase or other dependencies
+OTHER_SWIFT_FLAGS=$(inherited) -DCOCOAPODS

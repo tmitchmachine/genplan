@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for clipboard functionality
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; // Import MDI icons
-import 'package:share_plus/share_plus.dart';
 
 class PlanPage extends StatelessWidget {
   final String planDetails;
@@ -74,8 +74,8 @@ class PlanPage extends StatelessWidget {
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  // Share the plan details
-                  shareText(planDetails);
+                  // Copy the plan details to clipboard
+                  copyToClipboard(planDetails, context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
@@ -90,10 +90,10 @@ class PlanPage extends StatelessWidget {
                         8.0), // Match the container's border radius
                   ),
                 ),
-                child: const Text('Share'),
+                child: const Text('Copy to Clipboard'), // Changed button text
               ),
             ),
-            SizedBox(height: 16), // Space between Share and Close buttons
+            SizedBox(height: 16), // Space between Copy and Close buttons
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context); // Close the screen
@@ -103,7 +103,7 @@ class PlanPage extends StatelessWidget {
                     Colors.transparent, // Set background to transparent
                 foregroundColor: Colors.grey, // Grey text color for "Close"
                 elevation: 0, // No shadow
-                minimumSize: Size(200, 50), // Matching size with Share button
+                minimumSize: Size(200, 50), // Matching size with Copy button
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                 shape: RoundedRectangleBorder(
                   borderRadius:
@@ -118,7 +118,12 @@ class PlanPage extends StatelessWidget {
     );
   }
 
-  void shareText(String text) {
-    Share.share(text, subject: 'Sharing a Plan'); // Add subject if needed
+  void copyToClipboard(String text, BuildContext context) {
+    Clipboard.setData(ClipboardData(text: text)).then((_) {
+      // Show a snackbar to inform the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Plan details copied to clipboard!')),
+      );
+    });
   }
 }

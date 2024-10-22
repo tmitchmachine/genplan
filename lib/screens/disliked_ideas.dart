@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore import
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth import
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DislikedIdeasPage extends StatelessWidget {
   @override
@@ -17,12 +17,12 @@ class DislikedIdeasPage extends StatelessWidget {
                 .collection('users')
                 .doc(user.uid)
                 .collection('disliked_ideas')
+                .orderBy('timestamp', descending: true)
                 .snapshots()
-            : Stream.empty(), // Return empty stream if no user is signed in
+            : Stream.empty(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-                child: CircularProgressIndicator()); // Loading indicator
+            return Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -38,8 +38,7 @@ class DislikedIdeasPage extends StatelessWidget {
           return ListView.builder(
             itemCount: dislikedIdeas.length,
             itemBuilder: (context, index) {
-              final idea =
-                  dislikedIdeas[index]['idea']; // Access the 'idea' field
+              final idea = dislikedIdeas[index]['idea'];
 
               return ListTile(
                 leading: Icon(Icons.thumb_down, color: Colors.red),

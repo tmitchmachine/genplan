@@ -1,14 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:math'; // For generating random ideas
-import 'package:genplan/screens/plan.dart'; // Ensure this is correct
+import 'dart:math';
+import 'package:genplan/screens/plan.dart';
 import 'package:genplan/screens/menu.dart';
-import 'package:http/http.dart' as http; // Import the http package
-import 'dart:convert'; // For JSON encoding/decoding
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'dart:async';
-import 'package:genplan/data/ideas.dart'; // Import the local ideas list
-import 'package:provider/provider.dart'; // Import provider package
-import 'package:genplan/provider/theme_provider.dart'; // Import ThemeProvider
+import 'package:genplan/data/ideas.dart';
+import 'package:provider/provider.dart';
+import 'package:genplan/provider/theme_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -20,6 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isThumbsUpSelected = false;
   bool _isThumbsDownSelected = false;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<String> _planIdeas = [];
   String _generatedIdea = '';
@@ -28,13 +30,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchIdeasFromLocal(); // Fetch ideas from the local file when the page loads
+    _fetchIdeasFromLocal();
   }
 
   void _fetchIdeasFromLocal() {
     setState(() {
-      _planIdeas = ideasList; // Fetch from the hardcoded list in ideas.dart
-      _generateIdea(); // Generate an idea after fetching
+      _planIdeas = ideasList;
+      _generateIdea();
     });
   }
 
@@ -47,28 +49,68 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _handleThumbsUp() {
+  Future<void> _saveLikedIdea(String idea) async {
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      try {
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('liked_ideas')
+            .add({
+          'idea': idea,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        print('Error saving liked idea: $e');
+      }
+    }
+  }
+
+  Future<void> _saveDislikedIdea(String idea) async {
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      try {
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('disliked_ideas')
+            .add({
+          'idea': idea,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        print('Error saving disliked idea: $e');
+      }
+    }
+  }
+
+  void _handleThumbsUp() async {
     setState(() {
       _isThumbsUpSelected = true;
       _isThumbsDownSelected = false;
     });
 
+    await _saveLikedIdea(_generatedIdea);
+
     Future.delayed(Duration(milliseconds: 300), () {
-      _generateIdea(); // Generate a new idea after the transition
+      _generateIdea();
       setState(() {
         _isThumbsUpSelected = false;
       });
     });
   }
 
-  void _handleThumbsDown() {
+  void _handleThumbsDown() async {
     setState(() {
       _isThumbsDownSelected = true;
       _isThumbsUpSelected = false;
     });
 
+    await _saveDislikedIdea(_generatedIdea);
+
     Future.delayed(Duration(milliseconds: 300), () {
-      _generateIdea(); // Generate a new idea after the transition
+      _generateIdea();
       setState(() {
         _isThumbsDownSelected = false;
       });
@@ -103,7 +145,6 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      // Step 1: Make the initial POST request
       final postResponse = await http.post(
         url,
         headers: headers,
@@ -117,7 +158,6 @@ class _HomePageState extends State<HomePage> {
         if (predictionId != null) {
           print('Prediction ID: $predictionId');
 
-          // Step 2: Polling the result every 2 seconds until output is available
           Timer.periodic(Duration(seconds: 2), (timer) async {
             final resultUrl = Uri.parse(
                 'https://api.replicate.com/v1/predictions/$predictionId');
@@ -132,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                 final outputString = output.join();
                 print('Prediction Output: $outputString');
 
-                timer.cancel(); // Stop polling once we get the result
+                timer.cancel();
 
                 Navigator.push(
                   context,
@@ -146,7 +186,7 @@ class _HomePageState extends State<HomePage> {
             } else {
               print(
                   'Failed to fetch result with status code: ${resultResponse.statusCode}');
-              timer.cancel(); // Stop polling if there is an error
+              timer.cancel();
             }
           });
         } else {
@@ -162,7 +202,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Access the current theme using ThemeProvider
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDarkMode = themeProvider.isDarkMode;
 
@@ -173,8 +212,7 @@ class _HomePageState extends State<HomePage> {
             'https://firebasestorage.googleapis.com/v0/b/genplan-007.appspot.com/o/menu.png?alt=media&token=1dfccf5d-78da-42d4-a0a9-5a4ecda61ebd',
             width: 24,
             height: 24,
-            color:
-                isDarkMode ? Colors.white : Colors.black, // Adjust icon color
+            color: isDarkMode ? Colors.white : Colors.black,
           ),
           onPressed: () {
             Navigator.push(
@@ -202,7 +240,7 @@ class _HomePageState extends State<HomePage> {
             right: 0,
             child: Center(
               child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 300), // Faster transition
+                duration: Duration(milliseconds: 300),
                 transitionBuilder: (widget, animation) {
                   return FadeTransition(
                     opacity: animation,
@@ -210,10 +248,10 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 child: Text(
-                  _generatedIdea, // Display the generated idea
+                  _generatedIdea,
                   key: ValueKey<String>(_generatedIdea),
                   style: TextStyle(fontSize: 22),
-                  textAlign: TextAlign.center, // Center align the text
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -225,7 +263,6 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Thumbs up icon with a gradient UI
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0),
                   child: GestureDetector(
@@ -241,13 +278,12 @@ class _HomePageState extends State<HomePage> {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               )
-                            : null, // No gradient when unselected
+                            : null,
                         shape: BoxShape.circle,
                         boxShadow: _isThumbsUpSelected
                             ? [
                                 BoxShadow(
-                                  color: Colors.black
-                                      .withOpacity(0.3), // Lighter shadow
+                                  color: Colors.black.withOpacity(0.3),
                                   spreadRadius: 3,
                                   blurRadius: 8,
                                 ),
@@ -258,8 +294,7 @@ class _HomePageState extends State<HomePage> {
                         Icons.thumb_up_alt_rounded,
                         color: _isThumbsUpSelected
                             ? Colors.white
-                            : Colors
-                                .grey.shade400, // Lighter gray when unselected
+                            : Colors.grey.shade400,
                         size: _isThumbsUpSelected ? 28 : 24,
                       ),
                     ),
@@ -277,8 +312,8 @@ class _HomePageState extends State<HomePage> {
                   child: ElevatedButton(
                     onPressed: _handleGeneratePlan,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent, // Background color
-                      foregroundColor: Colors.white, // Text color
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
                       elevation: 0,
                       minimumSize: Size(200, 50),
                       padding: EdgeInsets.symmetric(
@@ -298,7 +333,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                // Thumbs down icon with a gradient UI
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: GestureDetector(
@@ -314,13 +348,12 @@ class _HomePageState extends State<HomePage> {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               )
-                            : null, // No gradient when unselected
+                            : null,
                         shape: BoxShape.circle,
                         boxShadow: _isThumbsDownSelected
                             ? [
                                 BoxShadow(
-                                  color: Colors.black
-                                      .withOpacity(0.3), // Lighter shadow
+                                  color: Colors.black.withOpacity(0.3),
                                   spreadRadius: 3,
                                   blurRadius: 8,
                                 ),
@@ -331,8 +364,7 @@ class _HomePageState extends State<HomePage> {
                         Icons.thumb_down_alt_rounded,
                         color: _isThumbsDownSelected
                             ? Colors.white
-                            : Colors
-                                .grey.shade400, // Lighter gray when unselected
+                            : Colors.grey.shade400,
                         size: _isThumbsDownSelected ? 28 : 24,
                       ),
                     ),

@@ -25,7 +25,7 @@ class _InterestsState extends State<Interests> {
       DocumentSnapshot userDoc =
           await _firestore.collection('users').doc(user.uid).get();
 
-      if (userDoc.exists) {
+      if (userDoc.exists && userDoc.data() != null) {
         setState(() {
           _interests.addAll(List<String>.from(userDoc['interests'] ?? []));
         });
@@ -38,7 +38,7 @@ class _InterestsState extends State<Interests> {
     if (user != null) {
       await _firestore.collection('users').doc(user.uid).set({
         'interests': _interests,
-      }, SetOptions(merge: true));
+      }, SetOptions(merge: true)); // Merge interests with existing data
     }
   }
 
@@ -47,8 +47,8 @@ class _InterestsState extends State<Interests> {
     if (interest.isNotEmpty && !_interests.contains(interest)) {
       setState(() {
         _interests.add(interest);
-        _saveInterests(); // Save the updated interests list to Firestore
       });
+      _saveInterests(); // Save immediately after updating the list
       _interestController.clear();
     }
   }
@@ -56,8 +56,8 @@ class _InterestsState extends State<Interests> {
   void _removeInterest(String interest) {
     setState(() {
       _interests.remove(interest);
-      _saveInterests(); // Save the updated interests list to Firestore
     });
+    _saveInterests(); // Save immediately after removing an interest
   }
 
   @override
@@ -122,8 +122,8 @@ class _InterestsState extends State<Interests> {
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () {
-            _saveInterests(); // Save the interests to Firestore
-            Navigator.pop(context); // Return to the previous screen (Menu)
+            _saveInterests();
+            Navigator.pop(context);
           },
           child: Text('Save'),
           style: ElevatedButton.styleFrom(

@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Genplan needs access to your location to show nearby options and provide personalized recommendations.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>NSLocationUsageDescriptionPrecise</key>
+		<string>Genplan requires precise location access to improve accuracy in nearby suggestions.</string>
+	</dict>
 </dict>
 </plist>

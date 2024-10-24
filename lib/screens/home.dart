@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     final headers = {
-      'Authorization': 'Bearer r8_9y3jCEB74fd4GZPZILUVUcIF7mPb3pJ1cadkP',
+      'Authorization': 'Bearer ',
       'Content-Type': 'application/json',
     };
 

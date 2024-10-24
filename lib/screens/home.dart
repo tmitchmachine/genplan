@@ -22,6 +22,26 @@ class _HomePageState extends State<HomePage> {
   bool _isThumbsUpSelected = false;
   bool _isThumbsDownSelected = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? _userLocation;
+  bool _locationSharingEnabled = false;
+  bool _usePreciseLocation = true;
+
+  Future<void> _loadLocationPreferences() async {
+    final user = widget.auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user.uid).get();
+
+      if (userDoc.exists) {
+        var data = userDoc.data() as Map<String, dynamic>;
+        setState(() {
+          _locationSharingEnabled = data['locationSharingEnabled'] ?? false;
+          _usePreciseLocation = data['usePreciseLocation'] ?? true;
+          _userLocation = data['selectedLocation'];
+        });
+      }
+    }
+  }
 
   List<String> _planIdeas = [];
   String _generatedIdea = '';
@@ -31,6 +51,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _fetchIdeasFromLocal();
+    _loadLocationPreferences();
   }
 
   void _fetchIdeasFromLocal() {
@@ -121,8 +142,20 @@ class _HomePageState extends State<HomePage> {
     final url = Uri.parse(
         'https://api.replicate.com/v1/models/meta/meta-llama-3-70b-instruct/predictions');
 
+    String locationContext = '';
+    if (_locationSharingEnabled) {
+      if (_usePreciseLocation) {
+        locationContext = 'The user is located at: $_userLocation. ';
+        print(locationContext);
+      } else {
+        locationContext =
+            'The user is in the general area of: $_userLocation. ';
+        print(locationContext);
+      }
+    }
+
     final headers = {
-      'Authorization': 'Bearer r8_SnnoM8rom6gUHZpb1sxPg74yJeOZ3Bl15Rw9g',
+      'Authorization': 'Bearer r8_9y3jCEB74fd4GZPZILUVUcIF7mPb3pJ1cadkP',
       'Content-Type': 'application/json',
     };
 
@@ -134,11 +167,21 @@ class _HomePageState extends State<HomePage> {
         "max_tokens": 512,
         "min_tokens": 0,
         "temperature": 0.6,
-        "system_prompt": "You are a helpful assistant",
+        "system_prompt":
+            """You are a helpful assistant that outputs a JSON object so that I can add a event to a calendar. I would like it to be formatted like this:
+        {
+          title: 'Event title',
+          description: 'Event description',
+          location: 'Event location',
+          startDate: DateTime(/* Some date here */),
+          endDate: DateTime(/* Some date here */),
+        }
+        ONLY output the JSON with nothing else
+        """,
         "length_penalty": 1,
         "stop_sequences": "<|end_of_text|>,<|eot_id|>",
         "prompt_template":
-            "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+            '<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n"You are a helpful assistant that outputs a JSON object so that I can add a event to a calendar the JSON object will contain ONLY the title, description, location ONLY output the JSON with nothing else the activities should be around the $locationContext area<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n',
         "presence_penalty": 1.15,
         "log_performance_metrics": false
       }
@@ -156,7 +199,7 @@ class _HomePageState extends State<HomePage> {
         final predictionId = responseData['id'];
 
         if (predictionId != null) {
-          print('Prediction ID: $predictionId');
+          print('Prediction ID: $predictionId $locationContext');
 
           Timer.periodic(Duration(seconds: 2), (timer) async {
             final resultUrl = Uri.parse(
@@ -170,7 +213,7 @@ class _HomePageState extends State<HomePage> {
 
               if (output != null) {
                 final outputString = output.join();
-                print('Prediction Output: $outputString');
+                print('Prediction Output: $outputString $locationContext');
 
                 timer.cancel();
 
